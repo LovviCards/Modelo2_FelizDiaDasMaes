@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>Cartão Dia das Mães</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.cartao-wrapper {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #ffe4ec 0%, #fff0f5 100%);
+}
+
+.heart-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 1.6rem 1.2rem;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  border: 1px solid #f8c8dc;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 10px 30px rgba(255, 182, 193, 0.2);
+}
+
+.card-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.8rem, 7vw, 2.5rem);
+  color: #e75480;
+}
+
+.card-sub {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  color: #d63384;
+  margin-bottom: 1.4rem;
+}
+
+.open-btn {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #ff6f91, #ff3f6c);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 40px;
+  font-size: 14px;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(255, 105, 135, 0.4);
+}
+
+.conteudo {
+  display: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.conteudo.visivel {
+  display: block;
+  opacity: 1;
+}
+
+.mensagem {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-size: 14px;
+  color: #a64d79;
+  line-height: 1.8;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #fff0f5;
+  border-radius: 12px;
+  border-left: 3px solid #ff6f91;
+  text-align: left;
+}
+
+.carrossel {
+  position: relative;
+  margin-top: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.carrossel-track {
+  display: flex;
+  transition: transform 0.45s ease;
+}
+
+.carrossel-track img {
+  min-width: 100%;
+  width: 100%;
+  height: 60vw;
+  max-height: 280px;
+  object-fit: contain;
+  background: #ffe4ec;
+}
+
+.carr-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.9);
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.carr-btn.prev { left: 6px; }
+.carr-btn.next { right: 6px; }
+
+.carr-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.carr-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffc0cb;
+}
+
+.carr-dot.ativo {
+  background: #ff3f6c;
+}
+
+.footer {
+  font-family: 'Great Vibes';
+  font-size: 1.5rem;
+  color: #e75480;
+  margin-top: 1.2rem;
+}
+</style>
+</head>
+
+<body>
+
+<div class="cartao-wrapper">
+<canvas class="heart-canvas" id="hCanvas"></canvas>
+
+<div class="card">
+<div class="card-title">Feliz Dia das Mães</div>
+<div class="card-sub">com todo amor do mundo 💖</div>
+
+<button class="open-btn" onclick="abrirCartao()">Abrir surpresa 💌</button>
+
+<div class="conteudo" id="conteudo">
+
+<div style="margin-top:10px;">
+<audio id="player" loop>
+<source src="https://github.com/talitaGama/Cart-o_dia_das_M-es/raw/f95a4cb53e391d5b211fa35de80fa32ceac6ec15/ReggaeBrasil-malandrinha.mp3" type="audio/mpeg">
+</audio>
+</div>
+
+<div class="mensagem">
+"Mãe, seu amor é o lugar mais bonito onde eu já estive. Obrigado por tudo 💖"
+</div>
+
+<div class="carrossel">
+<div class="carrossel-track" id="track">
+<img src="https://i.postimg.cc/90pq0CqW/e1696dc6-3e57-4ffe-ac68-53411402cc5b.jpg">
+<img src="https://i.postimg.cc/VLfCTr3J/9c408a1e-64ba-4da1-9ae0-3c3989a08d46.jpg">
+<img src="https://i.postimg.cc/2S3Bjpjp/e05e0791-7d1a-4269-9714-ad77f7c6907a.jpg">
+</div>
+
+<button class="carr-btn prev" onclick="mover(-1)">‹</button>
+<button class="carr-btn next" onclick="mover(1)">›</button>
+</div>
+
+<div class="carr-dots" id="dots"></div>
+
+<div class="footer">Com amor 💖</div>
+
+</div>
+</div>
+</div>
+
+<script>
+let atual = 0;
+const total = 3;
+const track = document.getElementById('track');
+const dotsEl = document.getElementById('dots');
+
+for (let i = 0; i < total; i++) {
+  const d = document.createElement('div');
+  d.className = 'carr-dot' + (i === 0 ? ' ativo' : '');
+  d.onclick = () => irPara(i);
+  dotsEl.appendChild(d);
+}
+
+function atualizarDots() {
+  document.querySelectorAll('.carr-dot').forEach((d,i) => {
+    d.className = 'carr-dot' + (i === atual ? ' ativo' : '');
+  });
+}
+
+function irPara(idx) {
+  atual = (idx + total) % total;
+  track.style.transform = `translateX(-${atual * 100}%)`;
+  atualizarDots();
+}
+
+function mover(dir) { irPara(atual + dir); }
+
+setInterval(() => mover(1), 3500);
+
+// MAIS CORAÇÕES 💖
+const canvas = document.getElementById('hCanvas');
+const ctx = canvas.getContext('2d');
+const hearts = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function randomHeart() {
+  return {
+    x: Math.random() * canvas.width,
+    y: -20,
+    size: Math.random() * 22 + 10,
+    speed: Math.random() * 1.8 + 0.6,
+    opacity: Math.random() * 0.6 + 0.4,
+    drift: (Math.random() - 0.5) * 1.2,
+    color: ['#ff6f91','#ff3f6c','#ffc0cb','#ff85a2','#ff1493'][Math.floor(Math.random()*5)]
+  };
+}
+
+function drawHeart(x, y, size, color, opacity) {
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  const s = size / 10;
+  ctx.moveTo(x, y+s*2);
+  ctx.bezierCurveTo(x, y, x-s*5, y, x-s*5, y+s*3);
+  ctx.bezierCurveTo(x-s*5, y+s*7, x, y+s*9, x, y+s*10);
+  ctx.bezierCurveTo(x, y+s*9, x+s*5, y+s*7, x+s*5, y+s*3);
+  ctx.bezierCurveTo(x+s*5, y, x, y, x, y+s*2);
+  ctx.fill();
+}
+
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (Math.random() < 0.15) hearts.push(randomHeart()); // MAIS CORAÇÕES
+
+  hearts.forEach((h, i) => {
+    h.y += h.speed;
+    h.x += h.drift;
+    h.opacity -= 0.004;
+
+    drawHeart(h.x, h.y, h.size, h.color, h.opacity);
+
+    if (h.opacity <= 0) hearts.splice(i,1);
+  });
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+function abrirCartao() {
+  document.querySelector('.open-btn').style.display = 'none';
+  const c = document.getElementById('conteudo');
+  c.style.display = 'block';
+  setTimeout(() => c.style.opacity = '1', 50);
+
+  document.getElementById('player').play();
+}
+</script>
+
+</body>
+</html>
